@@ -19080,7 +19080,7 @@ ${stats.unassigned} pulse(s) without an owner
                 {
                     id: 2,
                     title: "First Steps",
-                    description: "Begin your ascent. The lower slopes test your resolve as you learn the mountain's rhythms.",
+                    description: "Begin your ascent. The lower slopes test your resolve as you learn the mountain\'s rhythms.",
                     unlockCondition: () => narrativeState.completedChapters.includes(1),
                     objectives: [
                         { id: 'reach_camp1', text: 'Reach Camp 1 at 40%', completed: false, targetProgress: 40 },
@@ -19108,7 +19108,7 @@ ${stats.unassigned} pulse(s) without an owner
                 {
                     id: 4,
                     title: "Ghosts of the Past",
-                    description: "You discover remnants of previous expeditions. Their stories reveal the mountain's dark history.",
+                    description: "You discover remnants of previous expeditions. Their stories reveal the mountain\'s dark history.",
                     unlockCondition: () => narrativeState.completedChapters.includes(3),
                     objectives: [
                         { id: 'find_artifacts', text: 'Discover 5 lost artifacts', completed: false, count: 0, target: 5 },
@@ -19149,7 +19149,7 @@ ${stats.unassigned} pulse(s) without an owner
                 },
                 {
                     id: 7,
-                    title: "The Hermit's Wisdom",
+                    title: "The Hermit\'s Wisdom",
                     description: "High on the mountain lives a hermit who has climbed for 30 years. He shares ancient techniques.",
                     unlockCondition: () => narrativeState.completedChapters.includes(6),
                     objectives: [
@@ -19671,13 +19671,13 @@ ${stats.unassigned} pulse(s) without an owner
                         choices: [
                             { text: "I'm ready for the challenge!", response: "That's the spirit! Let's start with the basics.", relationshipChange: 5 },
                             { text: "Tell me about the mountain.", response: "Ah, a curious one. The mountain has many secrets...", relationshipChange: 3 },
-                            { text: "I don't need a guide.", response: "Pride comes before the fall, friend. But suit yourself.", relationshipChange: -5 }
+                            { text: "I don\'t need a guide.", response: "Pride comes before the fall, friend. But suit yourself.", relationshipChange: -5 }
                         ]
                     },
                     repeat_greeting: {
                         text: "Back again? The mountain calls to us all.",
                         choices: [
-                            { text: "I need equipment advice.", response: "Of course! Let me show you what's available.", action: 'openEquipmentShop' },
+                            { text: "I need equipment advice.", response: "Of course! Let me show you what\'s available.", action: 'openEquipmentShop' },
                             { text: "Tell me about other climbers.", response: "Many have tried, few have succeeded. But you... you might be different.", relationshipChange: 2 },
                             { text: "Goodbye.", response: "Safe climbing!" }
                         ]
@@ -19707,11 +19707,11 @@ ${stats.unassigned} pulse(s) without an owner
                         choices: [
                             { text: "I'll prove myself.", response: "We'll see. Most wash out before Camp 2.", relationshipChange: 2 },
                             { text: "I'm not a rookie.", response: "Everyone's a rookie until they summit. Now get climbing.", relationshipChange: -3 },
-                            { text: "Can you teach me?", response: "I don't do charity. Prove you're worth my time first.", relationshipChange: 1 }
+                            { text: "Can you teach me?", response: "I don\'t do charity. Prove you\'re worth my time first.", relationshipChange: 1 }
                         ]
                     },
                     earned_respect: {
-                        text: "You made it further than I expected. Maybe you're not hopeless after all.",
+                        text: "You made it further than I expected. Maybe you\'re not hopeless after all.",
                         choices: [
                             { text: "Thanks... I think?", response: "*smirks* That's the closest to praise you'll get from me. Keep it up.", relationshipChange: 5 },
                             { text: "I told you I could do it.", response: "Don't get cocky. The summit is where climbers really prove themselves.", relationshipChange: 3 }
@@ -19731,7 +19731,7 @@ ${stats.unassigned} pulse(s) without an owner
                 quests: ['speed_challenge_1', 'win_races'],
                 dialogues: {
                     first_meeting: {
-                        text: "So you're the new climber everyone's talking about. Funny, you don't look that impressive.",
+                        text: "So you\'re the new climber everyone\'s talking about. Funny, you don\'t look that impressive.",
                         choices: [
                             { text: "Let's race and find out.", response: "Now we're talking! You're on!", action: 'startRace', relationshipChange: 10 },
                             { text: "I'm not here to compete.", response: "Boring. Come find me when you grow a spine.", relationshipChange: -5 },
@@ -19768,9 +19768,9 @@ ${stats.unassigned} pulse(s) without an owner
                     first_meeting: {
                         text: "Few find their way to my cave. The mountain has brought you here for a reason.",
                         choices: [
-                            { text: "Who are you?", response: "I am merely a student of the mountain. I have much to teach, if you're willing to learn.", relationshipChange: 5 },
+                            { text: "Who are you?", response: "I am merely a student of the mountain. I have much to teach, if you\'re willing to learn.", relationshipChange: 5 },
                             { text: "Teach me your ways.", response: "Eagerness is good, but patience is better. First, prove your dedication.", relationshipChange: 3 },
-                            { text: "This is weird. I'm leaving.", response: "The mountain called you here. You will return when you're ready.", relationshipChange: 0 }
+                            { text: "This is weird. I\'m leaving.", response: "The mountain called you here. You will return when you\'re ready.", relationshipChange: 0 }
                         ]
                     },
                     wisdom: {
@@ -19829,14 +19829,14 @@ ${stats.unassigned} pulse(s) without an owner
                 avatar: '📸',
                 role: 'Nature Photographer',
                 location: 'Scenic Overlook (55%)',
-                description: 'A photographer capturing the mountain's beauty.',
+                description: 'A photographer capturing the mountain\'s beauty.',
                 relationship: 0,
                 quests: ['photo_peaks'],
                 dialogues: {
                     first_meeting: {
                         text: "The light here is incredible! Are you interested in photography?",
                         choices: [
-                            { text: "Yes! Teach me.", response: "Gladly! Here's a camera. Capture the mountain's majesty!", reward: { item: 'camera' }, relationshipChange: 10 },
+                            { text: "Yes! Teach me.", response: "Gladly! Here\'s a camera. Capture the mountain\'s majesty!", reward: { item: 'camera' }, relationshipChange: 10 },
                             { text: "Not really.", response: "Shame. You're missing half the experience.", relationshipChange: -2 }
                         ]
                     }
