@@ -4589,7 +4589,7 @@
 
             <nav class="nav-section">
                 <div class="nav-section-title">Main</div>
-                <div class="nav-item active">
+                <div class="nav-item active" data-nav="board" data-board="main">
                     <svg class="nav-icon" viewBox="0 0 16 16" fill="currentColor">
                         <rect x="2" y="2" width="5" height="5" rx="1"/>
                         <rect x="9" y="2" width="5" height="5" rx="1"/>
@@ -4598,13 +4598,13 @@
                     </svg>
                     <span>Main Board</span>
                 </div>
-                <div class="nav-item">
+                <div class="nav-item" data-nav="mywork">
                     <svg class="nav-icon" viewBox="0 0 16 16" fill="currentColor">
                         <path d="M2 4h12M2 8h12M2 12h12" stroke="currentColor" stroke-width="2" fill="none"/>
                     </svg>
                     <span>My Work</span>
                 </div>
-                <div class="nav-item">
+                <div class="nav-item" data-nav="calendar">
                     <svg class="nav-icon" viewBox="0 0 16 16" fill="currentColor">
                         <path d="M8 2v12M2 8h12" stroke="currentColor" stroke-width="2" fill="none"/>
                     </svg>
@@ -4614,16 +4614,16 @@
 
             <nav class="nav-section">
                 <div class="nav-section-title">Boards</div>
-                <div class="nav-item">
-                    <div class="nav-icon" style="background: transparent; border: 1px solid var(--border-subtle); border-radius: 2px;"></div>
+                <div class="nav-item" data-nav="board" data-board="launch">
+                    <div class="nav-icon" style="background: #3b82f6; border: 1px solid var(--border-subtle); border-radius: 2px;"></div>
                     <span>Launch Tasks</span>
                 </div>
-                <div class="nav-item">
-                    <div class="nav-icon" style="background: transparent; border: 1px solid var(--border-subtle); border-radius: 2px;"></div>
+                <div class="nav-item" data-nav="board" data-board="marketing">
+                    <div class="nav-icon" style="background: #f59e0b; border: 1px solid var(--border-subtle); border-radius: 2px;"></div>
                     <span>Marketing</span>
                 </div>
-                <div class="nav-item">
-                    <div class="nav-icon" style="background: transparent; border: 1px solid var(--border-subtle); border-radius: 2px;"></div>
+                <div class="nav-item" data-nav="board" data-board="development">
+                    <div class="nav-icon" style="background: #10b981; border: 1px solid var(--border-subtle); border-radius: 2px;"></div>
                     <span>Development</span>
                 </div>
             </nav>
@@ -5608,14 +5608,126 @@
 
     <script>
         // Data Models
+        // ========================================
+        // MULTI-BOARD SYSTEM
+        // ========================================
+        let currentBoardId = 'main';
+        let currentNavMode = 'board'; // 'board', 'mywork', 'calendar'
+
+        const boardConfigs = {
+            main: {
+                title: 'Main Board',
+                storageKey: 'apexBoard',
+                emoji: '🎯',
+                label: 'Launch Tasks'
+            },
+            launch: {
+                title: 'Launch Tasks',
+                storageKey: 'apexBoard_launch',
+                emoji: '🚀',
+                label: 'Launch Tasks'
+            },
+            marketing: {
+                title: 'Marketing',
+                storageKey: 'apexBoard_marketing',
+                emoji: '📣',
+                label: 'Marketing Campaigns'
+            },
+            development: {
+                title: 'Development',
+                storageKey: 'apexBoard_development',
+                emoji: '💻',
+                label: 'Development Sprints'
+            }
+        };
+
+        const boardDefaults = {
+            launch: [
+                {
+                    id: 'launch_g1', title: 'Pre-Launch', color: '#3b82f6', collapsed: false,
+                    pulses: [
+                        { id: 'lp1', title: 'Finalize pricing strategy', status: 'done', priority: 'critical', person: { name: 'Sarah Chen', initials: 'SC', color: '#3b82f6' }, date: '2026-02-10', progress: 100, tags: ['Strategy'], files: [], updates: [], subitems: [] },
+                        { id: 'lp2', title: 'Create launch landing page', status: 'working', priority: 'high', person: { name: 'Jordan Lee', initials: 'JL', color: '#10b981' }, date: '2026-02-18', progress: 60, tags: ['Design', 'Web'], files: [], updates: [], subitems: [] },
+                        { id: 'lp3', title: 'Set up email sequences', status: 'working', priority: 'high', person: { name: 'Emma Wilson', initials: 'EW', color: '#f59e0b' }, date: '2026-02-20', progress: 35, tags: ['Email', 'Automation'], files: [], updates: [], subitems: [] }
+                    ]
+                },
+                {
+                    id: 'launch_g2', title: 'Launch Day', color: '#f59e0b', collapsed: false,
+                    pulses: [
+                        { id: 'lp4', title: 'Go-live checklist review', status: 'pending', priority: 'critical', person: null, date: '2026-02-25', progress: 0, tags: ['Launch'], files: [], updates: [], subitems: [] },
+                        { id: 'lp5', title: 'Send launch announcement', status: 'pending', priority: 'high', person: { name: 'Mike Ross', initials: 'MR', color: '#ec4899' }, date: '2026-02-25', progress: 0, tags: ['Email', 'Launch'], files: [], updates: [], subitems: [] },
+                        { id: 'lp6', title: 'Monitor analytics dashboard', status: 'pending', priority: 'medium', person: { name: 'Alex Kim', initials: 'AK', color: '#8b5cf6' }, date: '2026-02-25', progress: 0, tags: ['Analytics'], files: [], updates: [], subitems: [] }
+                    ]
+                },
+                {
+                    id: 'launch_g3', title: 'Post-Launch', color: '#10b981', collapsed: false,
+                    pulses: [
+                        { id: 'lp7', title: 'Collect user feedback', status: 'pending', priority: 'high', person: null, date: '2026-03-01', progress: 0, tags: ['Feedback'], files: [], updates: [], subitems: [] },
+                        { id: 'lp8', title: 'Fix critical bugs from launch', status: 'pending', priority: 'critical', person: null, date: '2026-03-02', progress: 0, tags: ['Bug Fix'], files: [], updates: [], subitems: [] }
+                    ]
+                }
+            ],
+            marketing: [
+                {
+                    id: 'mkt_g1', title: 'Content Creation', color: '#f59e0b', collapsed: false,
+                    pulses: [
+                        { id: 'mp1', title: 'Write blog post: Why Apex', status: 'working', priority: 'high', person: { name: 'Emma Wilson', initials: 'EW', color: '#f59e0b' }, date: '2026-02-15', progress: 50, tags: ['Blog', 'Content'], files: [], updates: [], subitems: [] },
+                        { id: 'mp2', title: 'Design social media assets', status: 'working', priority: 'medium', person: { name: 'Jordan Lee', initials: 'JL', color: '#10b981' }, date: '2026-02-16', progress: 40, tags: ['Social', 'Design'], files: [], updates: [], subitems: [] },
+                        { id: 'mp3', title: 'Record product demo video', status: 'pending', priority: 'high', person: null, date: '2026-02-20', progress: 0, tags: ['Video', 'Demo'], files: [], updates: [], subitems: [] }
+                    ]
+                },
+                {
+                    id: 'mkt_g2', title: 'Campaigns', color: '#ec4899', collapsed: false,
+                    pulses: [
+                        { id: 'mp4', title: 'Launch Facebook ad campaign', status: 'pending', priority: 'high', person: { name: 'Alex Kim', initials: 'AK', color: '#8b5cf6' }, date: '2026-02-22', progress: 0, tags: ['Ads', 'Facebook'], files: [], updates: [], subitems: [] },
+                        { id: 'mp5', title: 'Set up Google Ads', status: 'pending', priority: 'medium', person: null, date: '2026-02-24', progress: 0, tags: ['Ads', 'Google'], files: [], updates: [], subitems: [] }
+                    ]
+                },
+                {
+                    id: 'mkt_g3', title: 'Analytics & Reporting', color: '#8b5cf6', collapsed: false,
+                    pulses: [
+                        { id: 'mp6', title: 'Set up UTM tracking', status: 'done', priority: 'medium', person: { name: 'Mike Ross', initials: 'MR', color: '#ec4899' }, date: '2026-02-12', progress: 100, tags: ['Analytics'], files: [], updates: [], subitems: [] },
+                        { id: 'mp7', title: 'Weekly performance report', status: 'working', priority: 'low', person: { name: 'Sarah Chen', initials: 'SC', color: '#3b82f6' }, date: '2026-02-19', progress: 25, tags: ['Report'], files: [], updates: [], subitems: [] }
+                    ]
+                }
+            ],
+            development: [
+                {
+                    id: 'dev_g1', title: 'Backend', color: '#10b981', collapsed: false,
+                    pulses: [
+                        { id: 'dp1', title: 'Build REST API endpoints', status: 'working', priority: 'critical', person: { name: 'Mike Ross', initials: 'MR', color: '#ec4899' }, date: '2026-02-17', progress: 70, tags: ['API', 'Backend'], files: [], updates: [], subitems: [] },
+                        { id: 'dp2', title: 'Set up database schema', status: 'done', priority: 'critical', person: { name: 'Alex Kim', initials: 'AK', color: '#8b5cf6' }, date: '2026-02-10', progress: 100, tags: ['Database'], files: [], updates: [], subitems: [] },
+                        { id: 'dp3', title: 'Implement authentication', status: 'working', priority: 'high', person: { name: 'Mike Ross', initials: 'MR', color: '#ec4899' }, date: '2026-02-20', progress: 45, tags: ['Auth', 'Security'], files: [], updates: [], subitems: [] }
+                    ]
+                },
+                {
+                    id: 'dev_g2', title: 'Frontend', color: '#3b82f6', collapsed: false,
+                    pulses: [
+                        { id: 'dp4', title: 'Build dashboard UI components', status: 'working', priority: 'high', person: { name: 'Jordan Lee', initials: 'JL', color: '#10b981' }, date: '2026-02-19', progress: 55, tags: ['UI', 'React'], files: [], updates: [], subitems: [] },
+                        { id: 'dp5', title: 'Implement responsive design', status: 'stuck', priority: 'medium', person: { name: 'Jordan Lee', initials: 'JL', color: '#10b981' }, date: '2026-02-22', progress: 20, tags: ['CSS', 'Mobile'], files: [], updates: [], subitems: [] }
+                    ]
+                },
+                {
+                    id: 'dev_g3', title: 'DevOps & Testing', color: '#f59e0b', collapsed: false,
+                    pulses: [
+                        { id: 'dp6', title: 'Set up CI/CD pipeline', status: 'done', priority: 'high', person: { name: 'Alex Kim', initials: 'AK', color: '#8b5cf6' }, date: '2026-02-11', progress: 100, tags: ['DevOps', 'CI/CD'], files: [], updates: [], subitems: [] },
+                        { id: 'dp7', title: 'Write unit tests for API', status: 'pending', priority: 'high', person: null, date: '2026-02-24', progress: 0, tags: ['Testing'], files: [], updates: [], subitems: [] },
+                        { id: 'dp8', title: 'Load testing & optimization', status: 'pending', priority: 'medium', person: null, date: '2026-02-28', progress: 0, tags: ['Performance', 'Testing'], files: [], updates: [], subitems: [] }
+                    ]
+                }
+            ]
+        };
+
         class Board {
-            constructor() {
+            constructor(boardId) {
+                this.boardId = boardId || 'main';
                 this.groups = [];
                 this.loadFromStorage();
             }
 
             loadFromStorage() {
-                const saved = localStorage.getItem('apexBoard');
+                const key = boardConfigs[this.boardId]?.storageKey || 'apexBoard';
+                const saved = localStorage.getItem(key);
                 if (saved) {
                     const data = JSON.parse(saved);
                     this.groups = data.groups || [];
@@ -5625,12 +5737,24 @@
             }
 
             saveToStorage() {
-                localStorage.setItem('apexBoard', JSON.stringify({
+                const key = boardConfigs[this.boardId]?.storageKey || 'apexBoard';
+                localStorage.setItem(key, JSON.stringify({
                     groups: this.groups
                 }));
             }
 
+            switchBoard(boardId) {
+                this.saveToStorage();
+                this.boardId = boardId;
+                this.loadFromStorage();
+            }
+
             initializeDefaultData() {
+                if (this.boardId !== 'main' && boardDefaults[this.boardId]) {
+                    this.groups = JSON.parse(JSON.stringify(boardDefaults[this.boardId]));
+                    this.saveToStorage();
+                    return;
+                }
                 this.groups = [
                     {
                         id: 'group1',
@@ -8465,6 +8589,122 @@
         // Initialize
         renderBoard();
         attachEventListeners();
+
+        // ========================================
+        // SIDEBAR NAVIGATION SYSTEM
+        // ========================================
+        function switchToBoard(boardId) {
+            currentBoardId = boardId;
+            currentNavMode = 'board';
+            board.switchBoard(boardId);
+
+            const config = boardConfigs[boardId];
+            document.querySelector('.board-title').textContent = config.title;
+            document.querySelector('.board-meta span').textContent = config.emoji + ' ' + config.label;
+
+            currentView = 'table';
+            renderBoard();
+            attachEventListeners();
+            updateSidebarActive(boardId, 'board');
+        }
+
+        function switchToMyWork() {
+            currentNavMode = 'mywork';
+            document.querySelector('.board-title').textContent = 'My Work';
+            document.querySelector('.board-meta span').textContent = '👤 All Assigned Tasks';
+
+            // Gather assigned pulses from ALL boards
+            const container = document.getElementById('boardContainer');
+            container.innerHTML = '';
+
+            const allBoards = Object.keys(boardConfigs);
+            const myWorkGroups = [];
+
+            allBoards.forEach(bid => {
+                const key = boardConfigs[bid].storageKey;
+                const saved = localStorage.getItem(key);
+                if (!saved) return;
+                const data = JSON.parse(saved);
+                if (!data.groups) return;
+
+                const assignedPulses = [];
+                data.groups.forEach(group => {
+                    group.pulses.forEach(pulse => {
+                        if (pulse.person) {
+                            assignedPulses.push(pulse);
+                        }
+                    });
+                });
+
+                if (assignedPulses.length > 0) {
+                    myWorkGroups.push({
+                        id: 'mywork_' + bid,
+                        title: boardConfigs[bid].title,
+                        color: bid === 'main' ? '#3b82f6' : bid === 'launch' ? '#3b82f6' : bid === 'marketing' ? '#f59e0b' : '#10b981',
+                        collapsed: false,
+                        pulses: assignedPulses
+                    });
+                }
+            });
+
+            // Temporarily swap board groups to render
+            const originalGroups = board.groups;
+            const originalBoardId = board.boardId;
+            board.groups = myWorkGroups;
+            renderBoard();
+            attachEventListeners();
+            board.groups = originalGroups;
+            board.boardId = originalBoardId;
+
+            // Update item count
+            const totalPulses = myWorkGroups.reduce((sum, g) => sum + g.pulses.length, 0);
+            const itemCountEl = document.getElementById('itemCount');
+            if (itemCountEl) itemCountEl.textContent = totalPulses + ' Items';
+
+            updateSidebarActive(null, 'mywork');
+        }
+
+        function switchToCalendar() {
+            currentNavMode = 'calendar';
+            currentView = 'calendar';
+            document.querySelector('.board-title').textContent = 'Calendar';
+            document.querySelector('.board-meta span').textContent = '📅 All Tasks Calendar';
+
+            renderBoard();
+            attachEventListeners();
+            updateSidebarActive(null, 'calendar');
+        }
+
+        function updateSidebarActive(boardId, mode) {
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+
+            if (mode === 'board' && boardId) {
+                const target = document.querySelector(`.nav-item[data-nav="board"][data-board="${boardId}"]`);
+                if (target) target.classList.add('active');
+            } else if (mode === 'mywork') {
+                const target = document.querySelector('.nav-item[data-nav="mywork"]');
+                if (target) target.classList.add('active');
+            } else if (mode === 'calendar') {
+                const target = document.querySelector('.nav-item[data-nav="calendar"]');
+                if (target) target.classList.add('active');
+            }
+        }
+
+        // Attach sidebar click handlers
+        document.querySelectorAll('.nav-item[data-nav]').forEach(item => {
+            item.addEventListener('click', () => {
+                const nav = item.dataset.nav;
+                if (nav === 'board') {
+                    switchToBoard(item.dataset.board);
+                } else if (nav === 'mywork') {
+                    switchToMyWork();
+                } else if (nav === 'calendar') {
+                    switchToCalendar();
+                }
+            });
+        });
 
         // ========================================
         // PRODUCTIVITY TRACKING SYSTEM
