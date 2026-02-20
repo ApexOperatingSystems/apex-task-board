@@ -5719,7 +5719,7 @@
         };
 
         // Force reset corrupted localStorage from previous versions
-        const BOARD_VERSION = 'v2';
+        const BOARD_VERSION = 'v3';
         if (localStorage.getItem('apexBoardVersion') !== BOARD_VERSION) {
             localStorage.removeItem('apexBoard');
             localStorage.removeItem('apexBoard_launch');
@@ -5803,8 +5803,8 @@
                                 files: [],
                                 updates: [],
                                 subitems: [
-                                    { id: 's1', title: 'Create wireframes', completed: true },
-                                    { id: 's2', title: 'Design color palette', completed: false }
+                                    { id: 's1', title: 'Create wireframes', completed: true, status: 'done', priority: 'high', person: { name: 'Sarah Chen', initials: 'SC', color: '#3b82f6' }, date: '2026-01-22', progress: 100, tags: ['Design'], files: [] },
+                                    { id: 's2', title: 'Design color palette', completed: false, status: 'working', priority: 'medium', person: { name: 'Jordan Lee', initials: 'JL', color: '#10b981' }, date: '2026-01-26', progress: 40, tags: ['Design', 'UI'], files: [] }
                                 ]
                             },
                             {
@@ -6782,6 +6782,10 @@
             // Add subitems if expanded
             if (hasSubitems && isExpanded) {
                 pulse.subitems.forEach(subitem => {
+                    const subStatus = subitem.status || (subitem.completed ? 'done' : 'pending');
+                    const subPriority = subitem.priority || 'medium';
+                    const subDateClass = getDateClass(subitem.date || pulse.date);
+
                     html += `
                         <tr class="subitem-row" data-pulse-id="${pulse.id}" data-subitem-id="${subitem.id}">
                             <td>
@@ -6791,7 +6795,61 @@
                                     <input type="text" class="pulse-title-input" value="${subitem.title}" data-subitem-id="${subitem.id}" style="text-decoration: ${subitem.completed ? 'line-through' : 'none'}; opacity: ${subitem.completed ? '0.6' : '1'};">
                                 </div>
                             </td>
-                            <td colspan="8"></td>
+                            <td>
+                                <div class="status-badge status-${subStatus}" data-pulse-id="${pulse.id}" data-subitem-id="${subitem.id}" data-type="status">
+                                    <div class="status-dot"></div>
+                                    <span>${statusLabels[subStatus] || 'Not Started'}</span>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="priority-badge priority-${subPriority}" data-pulse-id="${pulse.id}" data-subitem-id="${subitem.id}" data-type="priority">
+                                    <span>${priorityLabels[subPriority] || '🔵 Medium'}</span>
+                                </div>
+                            </td>
+                            <td>
+                                ${subitem.person ? `
+                                    <div class="person-cell" data-pulse-id="${pulse.id}" data-subitem-id="${subitem.id}" data-type="person">
+                                        <div class="person-avatar" style="background: ${subitem.person.color}">
+                                            ${subitem.person.initials}
+                                        </div>
+                                        <span class="person-name">${subitem.person.name}</span>
+                                    </div>
+                                ` : `
+                                    <div class="add-person-btn" data-pulse-id="${pulse.id}" data-subitem-id="${subitem.id}" data-type="person">+</div>
+                                `}
+                            </td>
+                            <td>
+                                <div class="date-cell ${subDateClass}" data-pulse-id="${pulse.id}" data-subitem-id="${subitem.id}" data-type="date">
+                                    📅 ${formatDate(subitem.date || pulse.date)}
+                                </div>
+                            </td>
+                            <td>
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <div class="progress-bar" style="width: 100px; margin: 0;">
+                                        <div class="progress-fill" style="width: ${subitem.progress || 0}%;"></div>
+                                    </div>
+                                    <span style="font-size: 12px; color: var(--text-muted);">${subitem.progress || 0}%</span>
+                                </div>
+                            </td>
+                            <td>
+                                <div style="display: flex; gap: 4px; flex-wrap: wrap;">
+                                    ${subitem.tags && subitem.tags.length > 0 ? subitem.tags.map(tag => `
+                                        <span class="tag" style="font-size: 10px; padding: 2px 6px;">${tag}</span>
+                                    `).join('') : '<span style="font-size: 12px; color: var(--text-muted);">-</span>'}
+                                </div>
+                            </td>
+                            <td>
+                                <div style="display: flex; align-items: center; gap: 4px;">
+                                    ${subitem.files && subitem.files.length > 0 ? `
+                                        <span style="font-size: 12px; color: var(--text-secondary);">📎 ${subitem.files.length}</span>
+                                    ` : '<span style="font-size: 12px; color: var(--text-muted);">-</span>'}
+                                </div>
+                            </td>
+                            <td>
+                                <button class="icon-btn" data-pulse-id="${pulse.id}" data-subitem-id="${subitem.id}" data-action="delete-subitem" title="Delete subitem" style="font-size: 12px; color: var(--text-muted);">
+                                    🗑️
+                                </button>
+                            </td>
                         </tr>
                     `;
                 });
@@ -6942,6 +7000,23 @@
                     e.stopPropagation();
                     const pulseId = btn.dataset.pulseId;
                     openPulseDetail(pulseId);
+                });
+            });
+
+            // Delete subitem
+            document.querySelectorAll('[data-action="delete-subitem"]').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const pulseId = btn.dataset.pulseId;
+                    const subitemId = btn.dataset.subitemId;
+                    const pulse = board.getPulse(pulseId);
+                    if (pulse && pulse.subitems) {
+                        pulse.subitems = pulse.subitems.filter(s => s.id !== subitemId);
+                        board.saveToStorage();
+                        renderBoard();
+                        attachEventListeners();
+                        showToast('Subitem Deleted', 'Subitem removed', 'success');
+                    }
                 });
             });
 
@@ -7547,20 +7622,137 @@
             attachEventListeners();
         }
 
-        function handleCellClick(pulseId, type, element) {
+        function updateSubitemField(pulseId, subitemId, updates) {
             const pulse = board.getPulse(pulseId);
-            if (!pulse) return;
+            if (pulse && pulse.subitems) {
+                const subitem = pulse.subitems.find(s => s.id === subitemId);
+                if (subitem) {
+                    Object.assign(subitem, updates);
+                    // Sync completed with status
+                    if (updates.status === 'done') subitem.completed = true;
+                    else if (updates.status) subitem.completed = false;
+                    board.saveToStorage();
+                    return true;
+                }
+            }
+            return false;
+        }
 
+        function handleCellClick(pulseId, type, element) {
+            const subitemId = element.dataset.subitemId;
             const rect = element.getBoundingClientRect();
 
+            if (subitemId) {
+                // Subitem cell click
+                if (type === 'status') {
+                    showSubitemDropdown(pulseId, subitemId, 'status', rect);
+                } else if (type === 'priority') {
+                    showSubitemDropdown(pulseId, subitemId, 'priority', rect);
+                } else if (type === 'person') {
+                    showSubitemDropdown(pulseId, subitemId, 'person', rect);
+                } else if (type === 'date') {
+                    showSubitemDropdown(pulseId, subitemId, 'date', rect);
+                }
+            } else {
+                // Pulse cell click
+                const pulse = board.getPulse(pulseId);
+                if (!pulse) return;
+
+                if (type === 'status') {
+                    showStatusDropdown(pulseId, rect);
+                } else if (type === 'priority') {
+                    showPriorityDropdown(pulseId, rect);
+                } else if (type === 'person') {
+                    showPersonDropdown(pulseId, rect);
+                } else if (type === 'date') {
+                    showDatePicker(pulseId, rect);
+                }
+            }
+        }
+
+        function showSubitemDropdown(pulseId, subitemId, type, rect) {
             if (type === 'status') {
-                showStatusDropdown(pulseId, rect);
+                const statuses = [
+                    { value: 'working', label: 'Working on it' },
+                    { value: 'done', label: 'Done' },
+                    { value: 'stuck', label: 'Stuck' },
+                    { value: 'pending', label: 'Not Started' }
+                ];
+                showDropdown(rect, statuses.map(s => `
+                    <div class="dropdown-item" data-value="${s.value}">
+                        <div class="status-dot"></div>
+                        <span>${s.label}</span>
+                    </div>
+                `).join(''), (value) => {
+                    updateSubitemField(pulseId, subitemId, { status: value });
+                    renderBoard();
+                    attachEventListeners();
+                });
             } else if (type === 'priority') {
-                showPriorityDropdown(pulseId, rect);
+                const priorities = [
+                    { value: 'critical', label: '🔴 Critical' },
+                    { value: 'high', label: '🟠 High' },
+                    { value: 'medium', label: '🔵 Medium' },
+                    { value: 'low', label: '⚪ Low' }
+                ];
+                showDropdown(rect, priorities.map(p => `
+                    <div class="dropdown-item" data-value="${p.value}">
+                        <span>${p.label}</span>
+                    </div>
+                `).join(''), (value) => {
+                    updateSubitemField(pulseId, subitemId, { priority: value });
+                    renderBoard();
+                    attachEventListeners();
+                });
             } else if (type === 'person') {
-                showPersonDropdown(pulseId, rect);
+                const people = [
+                    { name: 'Sarah Chen', initials: 'SC', color: '#3b82f6' },
+                    { name: 'Mike Ross', initials: 'MR', color: '#ec4899' },
+                    { name: 'Emma Wilson', initials: 'EW', color: '#f59e0b' },
+                    { name: 'Alex Kim', initials: 'AK', color: '#8b5cf6' },
+                    { name: 'Jordan Lee', initials: 'JL', color: '#10b981' }
+                ];
+                showDropdown(rect, people.map(p => `
+                    <div class="dropdown-item" data-person='${JSON.stringify(p)}'>
+                        <div class="person-avatar" style="background: ${p.color}; width: 24px; height: 24px; font-size: 10px;">
+                            ${p.initials}
+                        </div>
+                        <span>${p.name}</span>
+                    </div>
+                `).join(''), (value, el) => {
+                    const person = JSON.parse(el.dataset.person);
+                    updateSubitemField(pulseId, subitemId, { person });
+                    renderBoard();
+                    attachEventListeners();
+                });
             } else if (type === 'date') {
-                showDatePicker(pulseId, rect);
+                const today = new Date().toISOString().split('T')[0];
+                const tomorrow = new Date(Date.now() + 86400000).toISOString().split('T')[0];
+                const nextWeek = new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0];
+                showDropdown(rect, `
+                    <div class="dropdown-item" data-value="${today}"><span>📅 Today</span></div>
+                    <div class="dropdown-item" data-value="${tomorrow}"><span>📅 Tomorrow</span></div>
+                    <div class="dropdown-item" data-value="${nextWeek}"><span>📅 Next Week</span></div>
+                    <div class="dropdown-divider"></div>
+                    <div style="padding: 12px 16px;">
+                        <input type="date" id="customDate" class="header-search" style="width: 100%;">
+                    </div>
+                `, (value) => {
+                    updateSubitemField(pulseId, subitemId, { date: value });
+                    renderBoard();
+                    attachEventListeners();
+                });
+                setTimeout(() => {
+                    const dateInput = document.getElementById('customDate');
+                    if (dateInput) {
+                        dateInput.addEventListener('change', (e) => {
+                            updateSubitemField(pulseId, subitemId, { date: e.target.value });
+                            closeDropdown();
+                            renderBoard();
+                            attachEventListeners();
+                        });
+                    }
+                }, 0);
             }
         }
 
@@ -8483,7 +8675,14 @@
             pulse.subitems.push({
                 id: newSubitemId,
                 title: '',
-                completed: false
+                completed: false,
+                status: 'pending',
+                priority: 'medium',
+                person: null,
+                date: new Date().toISOString().split('T')[0],
+                progress: 0,
+                tags: [],
+                files: []
             });
 
             pulse.subitemsExpanded = true;
