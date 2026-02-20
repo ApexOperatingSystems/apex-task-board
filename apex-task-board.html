@@ -5718,6 +5718,16 @@
             ]
         };
 
+        // Force reset corrupted localStorage from previous versions
+        const BOARD_VERSION = 'v2';
+        if (localStorage.getItem('apexBoardVersion') !== BOARD_VERSION) {
+            localStorage.removeItem('apexBoard');
+            localStorage.removeItem('apexBoard_launch');
+            localStorage.removeItem('apexBoard_marketing');
+            localStorage.removeItem('apexBoard_development');
+            localStorage.setItem('apexBoardVersion', BOARD_VERSION);
+        }
+
         class Board {
             constructor(boardId) {
                 this.boardId = boardId || 'main';
@@ -5731,6 +5741,25 @@
                 if (saved) {
                     const data = JSON.parse(saved);
                     this.groups = data.groups || [];
+                    // Migrate: ensure all pulses have required fields
+                    this.groups.forEach(group => {
+                        group.pulses = (group.pulses || []).filter(p => p && p.id).map(pulse => ({
+                            id: pulse.id,
+                            title: pulse.title || 'Untitled',
+                            status: pulse.status || 'pending',
+                            priority: pulse.priority || 'medium',
+                            person: pulse.person || null,
+                            date: pulse.date || new Date().toISOString().split('T')[0],
+                            progress: pulse.progress || 0,
+                            tags: pulse.tags || [],
+                            files: pulse.files || [],
+                            updates: pulse.updates || [],
+                            subitems: pulse.subitems || []
+                        }));
+                        // Remove pulses with empty titles (ghost rows from bad saves)
+                        group.pulses = group.pulses.filter(p => p.title && p.title.trim() !== '');
+                    });
+                    this.saveToStorage();
                 } else {
                     this.initializeDefaultData();
                 }
